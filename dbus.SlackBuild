@@ -1,0 +1,83 @@
+#!/bin/sh
+#
+# SlackBuild for dbus
+# Written by Georgi D. Sotirov <gdsotirov@dir.bg>
+# Based on the original script by Patrick Volkerding
+
+. ../slack-package.conf
+
+NAME=dbus
+VERSION=1.0.2
+ARCH=${ARCH:-i486}
+BUILD=1
+
+CWD=${CWD:-`pwd`}
+TMP=${TMP:-/tmp}
+
+cd $TMP
+tar -zxvf $CWD/$NAME-$VERSION.tar.gz
+SRC=$TMP/$NAME-$VERSION
+cd $SRC
+fix_source
+
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+./configure --build=$ARCH-slackware-linux \
+            --host=$ARCH-slackware-linux \
+            --prefix=/usr \
+            --sysconfdir=/etc \
+            --localstatedir=/var \
+            --enable-shared=yes \
+            --enable-static=no \
+            --enable-xml-docs \
+            --enable-doxygen-docs \
+            --with-system-pid-file=/var/run/dbus/dbus.pid \
+            --with-system-socket=/var/run/dbus/system_bus_socket \
+            --program-prefix="" \
+            --program-suffix="" \
+
+make || exit 1
+
+PKG="$TMP/package-$NAME"
+mkdir -p $PKG
+
+make DESTDIR=$PKG install
+
+# Prepare the package
+bin_perms $PKG
+( cd $PKG; strip_bin; strip_lib )
+( cd $SRC; create_docs $PKG $NAME-$VERSION )
+gzip_man $PKG
+
+# Install a custom init script for dbus - the included one is bad
+rm $PKG/etc/rc.d/*
+install -m 644 $CWD/rc.messagebus.new $PKG/etc/rc.d
+
+# Let's not clobber existing config files
+mv $PKG/etc/dbus-1/session.conf $PKG/etc/dbus-1/session.conf.new
+mv $PKG/etc/dbus-1/system.conf  $PKG/etc/dbus-1/system.conf.new
+
+# Fix some directory ownership
+chown messagebus $PKG/var/lib/dbus
+
+mkdir -p $PKG/install
+install -m 644 $CWD/slack-desc     $PKG/install
+install -m 644 $CWD/slack-required $PKG/install
+mkdir -p $PKG/usr/src/slackbuilds/$NAME-$VERSION
+install -m 644 $CWD/slack-desc        $PKG/usr/src/slackbuilds/$NAME-$VERSION
+install -m 644 $CWD/slack-required    $PKG/usr/src/slackbuilds/$NAME-$VERSION
+install -m 644 $CWD/rc.messagebus.new $PKG/usr/src/slackbuilds/$NAME-$VERSION
+install -m 644 $CWD/$NAME.SlackBuild  $PKG/usr/src/slackbuilds/$NAME-$VERSION
+
+cd $PKG
+PKGNAME=$NAME-$VERSION-$ARCH-$BUILD$MYIN
+makepkg -l y -c n $PKG_DIR/$PKGNAME.tgz
+cd $PKG_DIR
+md5sum $PKGNAME.tgz > $PKGNAME.tgz.md5
+cat $PKG/install/slack-desc > $PKG_DIR/$PKGNAME.txt
+
+if [ "$1" == "--cleanup" ]; then
+  rm -r $SRC
+  rm -r $PKG
+fi
+
