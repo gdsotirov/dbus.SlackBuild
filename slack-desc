@@ -8,4 +8,4 @@ dbus: passing framework, which can be used by any two apps to communicate
 dbus: directly (without going through the message bus daemon).
 dbus: NOTE: You must create dbus user yourself!
 dbus:
-dbus: Packaged by Georgi D. Sotirov <gdsotirov@dir.bg>
+dbus: Packaged by Georgi D. Sotirov <gdsotirov@gmail.com>
