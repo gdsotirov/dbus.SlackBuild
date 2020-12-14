@@ -3,14 +3,14 @@
 # messagebus:   The D-BUS systemwide message bus
 #
 # description:  This is a daemon which broadcasts notifications of system events \
-#               and other messages. See http://www.freedesktop.org/software/dbus/
+#               and other messages. See https://freedesktop.org/software/dbus/
 #
 # processname: dbus-daemon
 # pidfile: /var/run/dbus/pid
 
 # This is a modified version of the rc.messagebus script distributed with the
-# dbus sources.  Thanks to Don Tanner of the GWare <http://gware.org> Project
-# for most of the work involved      --Robby Workman <http://rlworkman.net>
+# dbus sources.  Thanks to Don Tanner of the GWare <https://web.archive.org/web/20070629215938/https://gware.org/> Project
+# for most of the work involved      --Robby Workman <https://rlworkman.net>
 
 
 PIDFILE=/var/run/dbus/dbus.pid
